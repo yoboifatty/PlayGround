@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#08060d" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2308060d'/%3E%3Ctext x='32' y='45' font-family='Arial Black,Arial' font-size='34' text-anchor='middle' fill='%23ff2f8e'%3EVI%3C/text%3E%3C/svg%3E" />
+<title>GTA VI — Leonida Dreaming</title>
+<style>
+:root{
+  --pink:#ff2f8e; --pink2:#ff7ab8; --cyan:#38e8ff; --gold:#ffd166; --red:#ff3b30;
+  --ink:#08060d; --panel:rgba(12,9,20,.82); --line:rgba(255,255,255,.14);
+  --font:'Arial Narrow','Roboto Condensed','Helvetica Neue',Arial,sans-serif;
+  --display:'Arial Black','Impact','Haettenschweiler',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#06040a;color:#fff;font-family:var(--font);-webkit-user-select:none;user-select:none;overscroll-behavior:none}
+canvas{display:block}
+#app{position:fixed;inset:0}
+.hidden{display:none!important}
+button{font-family:var(--font);cursor:pointer}
+kbd{display:inline-block;min-width:20px;padding:2px 6px;border:1px solid rgba(255,255,255,.35);border-radius:4px;background:rgba(255,255,255,.08);font-family:var(--font);font-weight:700;font-size:11px;letter-spacing:.04em;box-shadow:0 1px 0 rgba(0,0,0,.5)}
+
+/* ---------------- boot ---------------- */
+#boot{position:fixed;inset:0;z-index:200;background:#06040a;display:grid;place-items:center;transition:opacity .6s}
+#boot .loader{text-align:center}
+#boot .bars{display:flex;gap:6px;align-items:flex-end;height:52px;margin-bottom:18px;justify-content:center}
+#boot .bar{width:12px;background:linear-gradient(180deg,var(--cyan),var(--pink));animation:bounce 1s infinite alternate;border-radius:2px}
+@keyframes bounce{from{height:12px;opacity:.5}to{height:52px;opacity:1}}
+#boot h1{font-family:var(--display);letter-spacing:.18em;font-size:18px;margin:0 0 6px}
+#boot p{color:#8d86a0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;margin:0}
+
+/* ---------------- title ---------------- */
+#title{position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(18px,4vw,54px);
+  background:linear-gradient(90deg,rgba(5,3,10,.94) 0%,rgba(5,3,10,.72) 44%,rgba(5,3,10,.05) 72%,rgba(5,3,10,.35) 100%);
+  opacity:0;pointer-events:none;transition:opacity .8s}
+#title.show{opacity:1;pointer-events:auto}
+#title .brandRow{display:flex;align-items:flex-start;gap:24px}
+.brand{position:relative;line-height:.78}
+.brand .gta{font-family:var(--display);font-size:clamp(26px,4.1vw,48px);letter-spacing:.06em;color:#fff;text-shadow:0 4px 0 #1b0a2a}
+.brand .six{font-family:var(--display);font-size:clamp(120px,17vw,250px);letter-spacing:-.07em;
+  background:linear-gradient(160deg,#fff 0%,#ffd2e9 18%,#ff2f8e 52%,#b318ff 82%,#25e6ff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 10px 34px rgba(255,47,142,.38));margin-left:-6px}
+.brand .vi{position:absolute;right:-60px;top:-8px;writing-mode:vertical-rl;font-size:11px;letter-spacing:.38em;color:var(--cyan);opacity:.85}
+.titleTag{margin-top:22px;font-family:var(--display);font-size:clamp(20px,3.1vw,38px);letter-spacing:.14em;color:#fff;text-transform:uppercase}
+.titleTag em{font-style:normal;color:var(--gold)}
+.titleSub{max-width:480px;color:#c9c3d8;font-size:clamp(11px,1.25vw,14px);line-height:1.6;letter-spacing:.07em;margin-top:10px;text-transform:uppercase}
+.titleBottom{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap}
+.titlePlay{display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+#btnPlay{padding:16px 46px;font-family:var(--display);font-size:19px;letter-spacing:.16em;border:0;color:#0a0710;
+  background:linear-gradient(100deg,#fff,#ffd0e5 40%,var(--pink));box-shadow:0 0 0 1px rgba(255,255,255,.6),0 12px 44px rgba(255,47,142,.45);
+  clip-path:polygon(0 0,97% 0,100% 100%,3% 100%);transition:transform .15s,filter .15s}
+#btnPlay:hover{transform:translateY(-2px);filter:brightness(1.08)}
+#btnPlay small{display:block;font-family:var(--font);font-size:9px;letter-spacing:.24em;margin-top:4px;opacity:.6}
+.titleHint{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#8e87a2}
+.titleMeta{display:flex;gap:18px;flex-wrap:wrap;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#8e87a2}
+.titleMeta b{color:#fff}
+.titleMeta .dot{width:5px;height:5px;background:var(--pink);display:inline-block;margin-right:7px;vertical-align:middle}
+.savechip{padding:9px 13px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#aaa2bb}
+.savechip b{color:var(--gold)}
+.disclaimer{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#5f586f}
+
+/* ---------------- HUD ---------------- */
+#hud{position:fixed;inset:0;pointer-events:none;z-index:20;opacity:0;transition:opacity .5s}
+#hud.show{opacity:1}
+.hudTop{position:absolute;top:calc(14px + env(safe-area-inset-top));left:calc(18px + env(safe-area-inset-left));right:calc(18px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:flex-start;gap:18px}
+.loc{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:#d8d2e6;display:flex;align-items:center;gap:9px;text-shadow:0 2px 8px #000}
+.loc .pin{width:7px;height:7px;background:var(--cyan);box-shadow:0 0 12px var(--cyan);transform:rotate(45deg)}
+.loc .clock{color:var(--gold)}
+.loc .weather{color:#bdb5d0}
+.wanted{display:flex;gap:4px;align-items:center;padding:7px 11px;background:rgba(8,6,14,.5);border:1px solid rgba(255,255,255,.08);border-radius:3px;backdrop-filter:blur(6px)}
+.star{opacity:.18;transition:.25s;filter:grayscale(1)}
+.star svg{width:22px;height:22px;display:block}
+.star.on{opacity:1;filter:none}
+.star.white{color:#fff;filter:drop-shadow(0 0 7px rgba(255,255,255,.95))}
+.star.red{color:#ff2f3e;filter:drop-shadow(0 0 8px rgba(255,47,62,.9))}
+.star.pulse{animation:starpulse .55s infinite alternate}
+@keyframes starpulse{to{transform:scale(1.13)}}
+
+.radarWrap{position:absolute;left:calc(18px + env(safe-area-inset-left));bottom:calc(18px + env(safe-area-inset-bottom));width:198px;height:198px;border-radius:50%;
+  background:rgba(6,5,11,.88);border:2px solid rgba(255,255,255,.2);box-shadow:0 8px 40px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.8);overflow:hidden}
+#radar{width:100%;height:100%;display:block}
+.radarRing{position:absolute;inset:0;border-radius:50%;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(56,232,255,.12)}
+.radarCompass{position:absolute;top:5px;left:50%;transform:translateX(-50%);font-size:8px;letter-spacing:.2em;color:var(--cyan);text-shadow:0 0 8px #000}
+
+.status{position:absolute;left:calc(18px + env(safe-area-inset-left));bottom:calc(226px + env(safe-area-inset-bottom));width:198px;display:flex;flex-direction:column;gap:5px;padding:9px 10px;background:rgba(8,6,14,.58);border:1px solid rgba(255,255,255,.09);border-left:2px solid rgba(255,47,142,.55);border-radius:4px;backdrop-filter:blur(7px);box-shadow:0 6px 24px rgba(0,0,0,.35)}
+.meter{display:flex;align-items:center;gap:7px}
+.meter label{font-size:8px;letter-spacing:.16em;width:36px;color:#a79fb9;text-transform:uppercase}
+.meter .track{flex:1;height:5px;background:rgba(255,255,255,.13);overflow:hidden;transform:skewX(-18deg)}
+.meter .fill{height:100%;width:100%;transition:width .2s}
+.fill.hp{background:linear-gradient(90deg,#ff3b58,#ff8a5b)}
+.fill.ar{background:linear-gradient(90deg,#38e8ff,#7a9cff)}
+.fill.fo{background:linear-gradient(90deg,#ffd166,#ff2f8e)}
+.meter .val{font-size:9px;color:#d6d0e5;width:24px;text-align:right;letter-spacing:.05em}
+.purse{display:flex;justify-content:space-between;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.13);font-size:10px;letter-spacing:.08em}
+.purse b{font-size:12px;letter-spacing:.04em}
+.purse .cash{color:#7dff9c}.purse .bank{color:var(--cyan)}.purse .loot{color:var(--gold)}
+#weaponHud{position:absolute;right:calc(18px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));text-align:right;min-width:210px}
+#vehicleHud{position:absolute;right:calc(18px + env(safe-area-inset-right));bottom:calc(140px + env(safe-area-inset-bottom));width:186px;display:none;text-align:right}
+#vehicleHud.show{display:block}
+#vehicleHud .vrow{display:flex;align-items:baseline;justify-content:flex-end;gap:5px}
+#vehicleHud .gear{font-size:10px;letter-spacing:.16em;color:var(--gold);border:1px solid rgba(255,209,102,.5);padding:1px 5px}
+#vehicleHud .speed{font-family:var(--display);font-size:34px;line-height:1;letter-spacing:.02em}
+#vehicleHud .unit{font-size:9px;letter-spacing:.16em;color:#9c95ad}
+#vehicleHud .vbar{display:flex;align-items:center;gap:6px;margin-top:4px}
+#vehicleHud .vbar label{font-size:7px;letter-spacing:.14em;color:#a79fb9;width:26px}
+#vehicleHud .vbar .track{flex:1;height:4px;background:rgba(255,255,255,.13);transform:skewX(-18deg);overflow:hidden}
+#vehicleHud .vbar .fill{height:100%;background:linear-gradient(90deg,#ffd166,#ff7a4d);transition:width .2s}
+#vehicleHud .vbar .fill.low{background:linear-gradient(90deg,#ff3b58,#ff8a5b);animation:starpulse .5s infinite alternate}
+#vehicleHud .vseat{font-size:8px;letter-spacing:.18em;color:var(--cyan);margin-top:5px;text-transform:uppercase}
+#vehicleHud .vseat .hot{color:var(--gold)}
+.weaponName{font-family:var(--display);font-size:15px;letter-spacing:.1em;text-transform:uppercase;text-shadow:0 2px 10px #000}
+.weaponAmmo{font-family:var(--display);font-size:30px;letter-spacing:.03em;line-height:1}
+.weaponAmmo span{font-size:14px;color:#9c95ad}
+.loadout{display:flex;gap:6px;justify-content:flex-end;margin-top:9px}
+.slot{width:44px;height:30px;border:1px solid rgba(255,255,255,.18);background:rgba(9,7,16,.55);display:grid;place-items:center;font-size:9px;letter-spacing:.08em;color:#8e87a2;position:relative;transition:.15s}
+.slot.active{border-color:var(--pink);color:#fff;background:rgba(255,47,142,.16);box-shadow:0 0 14px rgba(255,47,142,.3)}
+.slot small{position:absolute;top:-7px;left:2px;font-size:7px;color:#6f6880}
+.roleTag{font-size:9px;letter-spacing:.24em;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.roleTag .swap{color:#fff;background:rgba(255,47,142,.25);border:1px solid rgba(255,47,142,.5);padding:1px 5px;margin-left:5px}
+
+#missionHud{position:absolute;top:calc(58px + env(safe-area-inset-top));right:calc(18px + env(safe-area-inset-right));width:min(300px,42vw);text-align:right;text-shadow:0 2px 8px #000}
+#missionHud .kicker{font-size:9px;letter-spacing:.28em;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
+#missionHud .obj{font-size:12px;line-height:1.45;letter-spacing:.05em;color:#fff;font-weight:700}
+#missionHud .dist{font-size:10px;letter-spacing:.14em;color:var(--cyan);margin-top:4px}
+#missionHud .payout{font-size:9px;letter-spacing:.16em;color:#9c95ad;margin-top:2px;text-transform:uppercase}
+
+#crosshair{position:absolute;left:50%;top:50%;width:30px;height:30px;transform:translate(-50%,-50%);transition:opacity .2s}
+#crosshair .ch{position:absolute;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.9)}
+#crosshair .ch.t{width:2px;height:7px;left:14px;top:0}
+#crosshair .ch.b{width:2px;height:7px;left:14px;bottom:0}
+#crosshair .ch.l{height:2px;width:7px;top:14px;left:0}
+#crosshair .ch.r{height:2px;width:7px;top:14px;right:0}
+#crosshair .dot{position:absolute;width:2px;height:2px;background:#fff;left:14px;top:14px;border-radius:50%}
+#crosshair.enemy .ch{background:#ff5068}
+#crosshair.focus .ch{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+
+#focusVignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 35%,rgba(255,209,102,.12) 62%,rgba(20,10,30,.42) 100%);opacity:0;transition:opacity .3s}
+#focusVignette.on{opacity:1}
+#damageVignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,transparent 40%,rgba(190,0,20,.65) 100%);opacity:0;transition:opacity .35s}
+#hitflash{position:absolute;inset:0;pointer-events:none;background:#fff;opacity:0;transition:opacity .08s}
+#subtitle{position:absolute;left:50%;bottom:calc(120px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(680px,86vw);text-align:center;opacity:0;transition:opacity .35s;text-shadow:0 2px 12px #000,0 0 30px #000}
+#subtitle.show{opacity:1}
+#subtitle .who{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--pink2);margin-bottom:5px}
+#subtitle .line{font-size:clamp(13px,1.5vw,17px);line-height:1.45;letter-spacing:.03em;color:#fff;font-weight:600}
+#prompt{position:absolute;left:50%;top:calc(62% + 20px);transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .2s}
+#prompt.show{opacity:1}
+#prompt .key{display:inline-flex;align-items:center;gap:8px;background:rgba(8,6,14,.86);border:1px solid rgba(255,255,255,.28);padding:7px 13px;border-radius:4px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;box-shadow:0 8px 30px #000}
+#prompt .key kbd{background:var(--pink);border-color:var(--pink);color:#0a0710;font-weight:800}
+#toasts{position:absolute;top:calc(50% + 100px);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;align-items:center}
+.toast{background:rgba(8,6,14,.9);border-left:3px solid var(--cyan);padding:7px 14px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;animation:toastIn .3s ease-out;white-space:nowrap;box-shadow:0 8px 30px #000}
+.toast.bad{border-color:var(--red)}.toast.good{border-color:#7dff9c}.toast.money{border-color:var(--gold)}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+#swapBanner{position:absolute;left:0;right:0;top:30%;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none}
+#swapBanner.show{opacity:1}
+#swapBanner .big{font-family:var(--display);font-size:clamp(26px,5vw,54px);letter-spacing:.16em;text-transform:uppercase;background:linear-gradient(100deg,#fff,var(--gold),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 24px rgba(0,0,0,.8))}
+#swapBanner .small{font-size:10px;letter-spacing:.36em;color:#fff;text-transform:uppercase;margin-top:4px}
+
+#cinema{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .5s}
+#cinema .bar{position:absolute;left:0;right:0;height:9vh;background:#000}
+#cinema .bar.t{top:0}.cinema .bar.b{bottom:0}
+#cinema.on{opacity:1}
+
+/* ---------------- overlays ---------------- */
+.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:rgba(4,3,8,.72);backdrop-filter:blur(9px);padding:18px;pointer-events:auto}
+.sheet{width:min(560px,94vw);background:linear-gradient(150deg,rgba(24,18,38,.97),rgba(10,8,17,.98));border:1px solid rgba(255,255,255,.16);box-shadow:0 30px 100px rgba(0,0,0,.8);padding:22px}
+.sheet h2{font-family:var(--display);font-size:22px;letter-spacing:.1em;margin:0 0 2px;text-transform:uppercase}
+.sheet .sub{font-size:9px;letter-spacing:.26em;color:#9189a6;text-transform:uppercase;margin-bottom:16px}
+.sheet .row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.09);font-size:12px;letter-spacing:.06em}
+.sheet .row .v{color:var(--gold);font-family:var(--display);font-size:17px}
+.sheet .row .v.cyan{color:var(--cyan)}.sheet .row .v.green{color:#7dff9c}
+.sheet .actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{padding:10px 16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:10px;letter-spacing:.16em;text-transform:uppercase;transition:.15s}
+.btn:hover{background:rgba(255,47,142,.2);border-color:var(--pink)}
+.btn.primary{background:var(--pink);border-color:var(--pink);color:#0a0710;font-weight:800}
+.btn.primary:hover{filter:brightness(1.1);background:var(--pink)}
+.btn.ghost{background:transparent}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.closeX{position:absolute;top:14px;right:16px;background:none;border:0;color:#8f88a3;font-size:22px;line-height:1}
+.phoneWrap{position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(4,3,8,.6);backdrop-filter:blur(7px);pointer-events:auto}
+.phone{width:min(360px,92vw);height:min(690px,88vh);background:#0b0912;border:10px solid #17131f;border-radius:38px;box-shadow:0 30px 120px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.12);position:relative;overflow:hidden;display:flex;flex-direction:column}
+.phone:before{content:'';position:absolute;top:9px;left:50%;transform:translateX(-50%);width:86px;height:21px;background:#050409;border-radius:12px;z-index:3}
+.phoneScreen{flex:1;overflow:auto;padding:36px 18px 20px;background:radial-gradient(130% 80% at 20% 0%,#261332 0%,#0d0a16 55%,#09070f 100%);scrollbar-width:none}
+.phoneScreen::-webkit-scrollbar{display:none}
+.appHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.appLogo{font-family:var(--display);font-size:20px;letter-spacing:.08em}
+.appLogo b{color:var(--pink)}
+.statusBar{position:absolute;top:14px;left:22px;right:22px;display:flex;justify-content:space-between;font-size:9px;letter-spacing:.08em;color:#bdb5d0;z-index:4}
+.balanceCard{background:linear-gradient(130deg,#ff2f8e22,#38e8ff11);border:1px solid rgba(255,255,255,.13);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.balanceCard:after{content:'';position:absolute;right:-30px;top:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(255,47,142,.35),transparent 70%)}
+.balanceCard .lab{font-size:8px;letter-spacing:.26em;color:#a79fb9;text-transform:uppercase}
+.balanceCard .amt{font-family:var(--display);font-size:34px;letter-spacing:.02em;margin:2px 0 4px}
+.balanceCard .amt span{font-size:16px;color:#bdb5d0}
+.balanceCard .acct{font-size:9px;letter-spacing:.14em;color:#8e87a2}
+.pillRow{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.pill{font-size:8px;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;border:1px solid rgba(255,255,255,.14);color:#b6aec8;background:rgba(255,255,255,.04)}
+.pill.hot{border-color:rgba(255,47,142,.5);color:var(--pink2)}
+.appList{margin-top:6px}
+.appRow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:11px;letter-spacing:.04em}
+.appRow .k{color:#8e87a2;font-size:8px;letter-spacing:.18em;text-transform:uppercase}
+.appRow .val{font-family:var(--display);font-size:16px;color:var(--gold)}
+.phoneTabbar{display:flex;border-top:1px solid rgba(255,255,255,.1);background:#0a0811;padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
+.phoneTabbar button{flex:1;background:none;border:0;color:#6f6880;font-size:8px;letter-spacing:.14em;text-transform:uppercase;display:flex;flex-direction:column;gap:4px;align-items:center;padding:4px}
+.phoneTabbar button i{font-style:normal;font-size:15px}
+.phoneTabbar button.active{color:var(--pink2)}
+.crimeBars{margin-top:8px}
+.crimeBar{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.crimeBar label{width:88px;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#9b94ae}
+.crimeBar .t{flex:1;height:5px;background:rgba(255,255,255,.1)}
+.crimeBar .f{height:100%;background:linear-gradient(90deg,var(--pink),var(--red))}
+.phone .note{font-size:9px;line-height:1.6;color:#7f7893;letter-spacing:.06em;margin-top:14px}
+
+.lockWrap{position:fixed;inset:0;z-index:95;display:grid;place-items:center;background:rgba(4,3,8,.7);backdrop-filter:blur(6px);pointer-events:auto}
+.lockPanel{width:min(480px,92vw);background:rgba(10,8,17,.97);border:1px solid rgba(255,255,255,.16);padding:24px;text-align:center}
+.lockPanel h3{font-family:var(--display);letter-spacing:.12em;margin:0 0 2px;font-size:20px;text-transform:uppercase}
+.lockPanel p{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#8e87a2;margin:0 0 20px}
+.lockTrack{height:44px;border:1px solid rgba(255,255,255,.2);background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 2px,transparent 2px 22px);position:relative;overflow:hidden}
+.lockZone{position:absolute;top:0;bottom:0;background:rgba(125,255,156,.26);border-left:1px solid #7dff9c;border-right:1px solid #7dff9c}
+.lockNeedle{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--pink);box-shadow:0 0 16px var(--pink)}
+.lockPins{display:flex;gap:8px;justify-content:center;margin:14px 0 4px}
+.pin{width:32px;height:5px;background:rgba(255,255,255,.14)}
+.pin.ok{background:#7dff9c;box-shadow:0 0 10px rgba(125,255,156,.6)}
+.lockMsg{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan);height:15px;margin-top:8px}
+.qteWrap{position:fixed;inset:0;z-index:95;display:grid;place-items:center;background:rgba(4,3,8,.4);pointer-events:auto}
+.qteBox{text-align:center;background:rgba(10,8,17,.92);border:1px solid rgba(255,255,255,.18);padding:24px 30px;box-shadow:0 20px 80px #000}
+.qteBox h3{font-family:var(--display);letter-spacing:.12em;margin:0 0 4px;font-size:20px;text-transform:uppercase;color:var(--pink2)}
+.qteBox p{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:#a79fb9;margin:0 0 16px}
+.qteKeys{display:flex;gap:10px;justify-content:center;margin-bottom:12px}
+.qteKeys .qk{width:54px;height:54px;display:grid;place-items:center;border:2px solid rgba(255,255,255,.2);font-family:var(--display);font-size:21px;color:#8e87a2;background:rgba(255,255,255,.03);transition:.16s}
+.qteKeys .qk.next{border-color:var(--cyan);color:#fff;box-shadow:0 0 20px rgba(56,232,255,.35);transform:translateY(-3px)}
+.qteKeys .qk.ok{border-color:#7dff9c;color:#7dff9c;background:rgba(125,255,156,.1)}
+.qteKeys .qk.fail{border-color:var(--red);color:var(--red)}
+.qteTimer{height:4px;background:rgba(255,255,255,.12);margin-top:6px}
+.qteTimer .f{height:100%;background:var(--pink);width:100%}
+.invGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.invCell{border:1px solid rgba(255,255,255,.12);padding:10px;text-align:center;background:rgba(255,255,255,.03)}
+.invCell .n{font-family:var(--display);font-size:22px;color:var(--gold)}
+.invCell .l{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:#9189a6;margin-top:2px}
+
+/* ---------------- pause / help ---------------- */
+#pause{position:fixed;inset:0;z-index:70;display:grid;place-items:center;background:rgba(4,3,8,.78);backdrop-filter:blur(10px);pointer-events:auto}
+.pauseSheet{width:min(760px,94vw);max-height:90vh;overflow:auto;background:linear-gradient(150deg,rgba(22,16,34,.97),rgba(8,6,14,.99));border:1px solid rgba(255,255,255,.16);padding:28px}
+.pauseSheet h2{font-family:var(--display);font-size:26px;letter-spacing:.12em;margin:0;text-transform:uppercase}
+.pauseSheet .sub{font-size:9px;letter-spacing:.26em;color:#9189a6;text-transform:uppercase;margin:2px 0 20px}
+.ctrlGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:6px 26px;margin:10px 0 20px}
+.ctrlGrid div{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:10px;letter-spacing:.06em;color:#c5bfd4}
+.ctrlGrid div span{color:#8e87a2;text-align:right}
+.sectionTitle{font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin:18px 0 4px}
+.sliderRow{display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#a79fb9;padding:5px 0}
+.sliderRow input{flex:1;accent-color:var(--pink)}
+.pauseActions{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+
+/* ---------------- mobile ---------------- */
+#touchUI{position:fixed;inset:0;z-index:30;pointer-events:none;display:none}
+body.touch #touchUI{display:block}
+#stickBase{position:absolute;left:calc(22px + env(safe-area-inset-left));bottom:calc(238px + env(safe-area-inset-bottom));width:112px;height:112px;border-radius:50%;border:1px solid rgba(255,255,255,.2);background:rgba(10,8,17,.4);pointer-events:auto}
+#stickKnob{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:rgba(255,255,255,.35);box-shadow:0 0 20px rgba(255,47,142,.5);border:1px solid rgba(255,255,255,.5)}
+.tbtn{position:absolute;pointer-events:auto;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(10,8,17,.55);color:#fff;font-size:10px;letter-spacing:.08em;display:grid;place-items:center;backdrop-filter:blur(4px);text-transform:uppercase}
+.tbtn:active{background:rgba(255,47,142,.35)}
+#tbFire{right:calc(22px + env(safe-area-inset-right));bottom:calc(210px + env(safe-area-inset-bottom));width:76px;height:76px;font-size:12px;border-color:rgba(255,47,142,.6)}
+#tbFocus{right:calc(108px + env(safe-area-inset-right));bottom:calc(232px + env(safe-area-inset-bottom));width:58px;height:58px}
+#tbEnter{right:calc(26px + env(safe-area-inset-right));bottom:calc(298px + env(safe-area-inset-bottom));width:62px;height:38px;border-radius:19px;font-size:9px}
+#tbSwap{right:calc(100px + env(safe-area-inset-right));bottom:calc(160px + env(safe-area-inset-bottom));width:58px;height:58px;font-size:8px}
+#tbPhone{right:calc(26px + env(safe-area-inset-right));bottom:calc(122px + env(safe-area-inset-bottom));width:46px;height:46px;font-size:8px}
+#tbJump{right:calc(104px + env(safe-area-inset-right));bottom:calc(94px + env(safe-area-inset-bottom));width:48px;height:48px;font-size:8px}
+#tbFocus2{right:calc(168px + env(safe-area-inset-right));bottom:calc(190px + env(safe-area-inset-bottom));width:52px;height:52px;font-size:8px}
+#touchLook{position:absolute;inset:0;pointer-events:auto}
+#mobileHint{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);font-size:8px;letter-spacing:.18em;color:#6f6880;text-transform:uppercase;pointer-events:none}
+@media (max-width:760px){
+  .radarWrap{width:128px;height:128px;bottom:calc(12px + env(safe-area-inset-bottom))}
+  .status{width:150px;bottom:calc(152px + env(safe-area-inset-bottom))}
+  #missionHud{width:min(240px,58vw);top:calc(52px + env(safe-area-inset-top))}
+  #weaponHud{min-width:0;bottom:calc(330px + env(safe-area-inset-bottom));right:calc(16px + env(safe-area-inset-right))}
+  #vehicleHud{width:130px;bottom:calc(400px + env(safe-area-inset-bottom));right:calc(14px + env(safe-area-inset-right))}
+  #vehicleHud .speed{font-size:24px}
+  .weaponAmmo{font-size:22px}.slot{width:34px;height:24px;font-size:7px}
+  .loadout{display:none}
+  #subtitle{bottom:calc(170px + env(safe-area-inset-bottom))}
+  .titleMeta{display:none}
+  #title .brand .vi{right:-38px;font-size:8px}
+  .purse{font-size:8px}.purse b{font-size:10px}
+  .status .meter label{width:26px;font-size:7px}
+  .hudTop{top:calc(8px + env(safe-area-inset-top))}
+  #mobileHint{display:block}
+  #missionHud .payout{display:none}
+}
+@media (max-height:560px){
+  .radarWrap{width:110px;height:110px}
+  .status{bottom:calc(130px + env(safe-area-inset-bottom))}
+  #missionHud{display:none}
+}
+</style>
+  <script type="module" crossorigin src="./assets/index-D6d8x7Kf.js"></script>
+</head>
+<body>
+<div id="app"></div>
+
+<div id="boot">
+  <div class="loader">
+    <div class="bars"><i class="bar" style="animation-delay:0s"></i><i class="bar" style="animation-delay:.1s"></i><i class="bar" style="animation-delay:.2s"></i><i class="bar" style="animation-delay:.3s"></i><i class="bar" style="animation-delay:.4s"></i></div>
+    <h1>LOADING LEONIDA</h1>
+    <p id="bootMsg">Baking sunlight</p>
+  </div>
+</div>
+
+<div id="title">
+  <div class="brandRow">
+    <div class="brand">
+      <div class="gta">GRAND THEFT AUTO</div>
+      <div class="six">VI</div>
+      <div class="vi">LEONIDA</div>
+      <div class="titleTag">Leonida <em>Dreaming</em></div>
+      <div class="titleSub">Jason and Lucia have one shot at the score that gets them out of Vice City. Two protagonists, one heat score, no auto-aim.</div>
+    </div>
+  </div>
+  <div class="titleBottom" style="position:relative">
+    <div class="titlePlay">
+      <button id="btnPlay">START THE SCORE<small>ENTER / TAP</small></button>
+      <div class="titleHint">Best with keyboard + mouse · Touch supported</div>
+    </div>
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
+      <div class="savechip">BANK <b id="titleBank">$0</b></div>
+      <div class="savechip">CASH <b id="titleCash">$0</b></div>
+      <div class="titleMeta">
+        <span><i class="dot"></i>VICE CITY</span><span>PORT GELLHORN</span><span>LEONIDA KEYS</span>
+      </div>
+    </div>
+  </div>
+  <div class="disclaimer">Fan-made technical concept · Not affiliated with Rockstar Games · Built for the OMGithub playground</div>
+</div>
+
+<div id="hud">
+  <div class="hudTop">
+    <div class="loc"><i class="pin"></i><span id="locName">VICE CITY</span><span class="clock" id="clock">21:40</span><span class="weather" id="weatherLabel">CLEAR</span></div>
+    <div class="wanted" id="wanted" title="White stars = visual contact. Red stars = active pursuit."></div>
+  </div>
+
+  <div id="missionHud">
+    <div class="kicker" id="missionKicker">STORY</div>
+    <div class="obj" id="missionObj">—</div>
+    <div class="dist" id="missionDist"></div>
+    <div class="payout" id="missionPayout"></div>
+  </div>
+
+  <div class="radarWrap"><canvas id="radar" width="400" height="400"></canvas><div class="radarRing"></div><div class="radarCompass">N</div></div>
+  <div class="status">
+    <div class="meter"><label>Health</label><div class="track"><div class="fill hp" id="hpFill"></div></div><div class="val" id="hpVal">100</div></div>
+    <div class="meter"><label>Armor</label><div class="track"><div class="fill ar" id="arFill"></div></div><div class="val" id="arVal">0</div></div>
+    <div class="meter"><label>Focus</label><div class="track"><div class="fill fo" id="foFill"></div></div><div class="val" id="foVal">100</div></div>
+    <div class="purse"><span class="cash">CASH <b id="cashHud">$0</b></span><span class="bank">BANK <b id="bankHud">$0</b></span><span class="loot">LOOT <b id="lootHud">0</b></span></div>
+  </div>
+
+  <div id="vehicleHud">
+    <div class="vrow"><span class="gear" id="vGear">D</span><span class="speed" id="vSpeed">0</span><span class="unit">MPH</span></div>
+    <div class="vbar"><label>FUEL</label><div class="track"><div class="fill" id="vFuel" style="width:100%"></div></div></div>
+    <div class="vbar"><label>BODY</label><div class="track"><div class="fill" id="vHealth" style="width:100%"></div></div></div>
+    <div class="vseat" id="vSeat">DRIVER · JASON</div>
+  </div>
+
+  <div id="weaponHud">
+    <div class="roleTag" id="roleTag">JASON <span class="swap">TAB SWAP</span></div>
+    <div class="weaponName" id="weaponName">PISTOL</div>
+    <div class="weaponAmmo"><span id="ammoMag">12</span><span> / <span id="ammoReserve">96</span></span></div>
+    <div class="loadout">
+      <div class="slot active" data-slot="1"><small>1</small>PISTOL</div>
+      <div class="slot" data-slot="2"><small>2</small>SMG</div>
+      <div class="slot" data-slot="3"><small>3</small>SHOTGUN</div>
+    </div>
+  </div>
+
+  <div id="crosshair"><i class="ch t"></i><i class="ch b"></i><i class="ch l"></i><i class="ch r"></i><i class="dot"></i></div>
+  <div id="focusVignette"></div>
+  <div id="damageVignette"></div>
+  <div id="hitflash"></div>
+  <div id="prompt"><div class="key"><kbd id="promptKey">E</kbd><span id="promptText">Interact</span></div></div>
+  <div id="subtitle"><div class="who" id="subWho">JASON</div><div class="line" id="subLine"></div></div>
+  <div id="swapBanner"><div class="big" id="swapBig">LUCIA</div><div class="small" id="swapSmall">REAL-TIME ROLE SWAP</div></div>
+  <div id="toasts"></div>
+  <div id="cinema"><div class="bar t"></div><div class="bar b"></div></div>
+
+  <div id="touchUI">
+    <div id="touchLook"></div>
+    <div id="stickBase"><div id="stickKnob"></div></div>
+    <button class="tbtn" id="tbFire">FIRE</button>
+    <button class="tbtn" id="tbFocus">FOCUS</button>
+    <button class="tbtn" id="tbEnter">ENTER</button>
+    <button class="tbtn" id="tbSwap">SWAP</button>
+    <button class="tbtn" id="tbPhone">PHONE</button>
+    <button class="tbtn" id="tbJump">JUMP</button>
+    <button class="tbtn" id="tbFocus2">SLOT</button>
+    <div id="mobileHint">Drag right side to look</div>
+  </div>
+</div>
+
+<div id="phone" class="phoneWrap hidden">
+  <div class="phone" id="phoneBody">
+    <div class="statusBar"><span id="phoneClock">21:40</span><span>LEONIDA 5G ▮▮▮</span></div>
+    <div class="phoneScreen">
+      <div class="appHead"><div class="appLogo">Buck<b>Me</b></div><div style="font-size:9px;letter-spacing:.12em;color:#8e87a2">SECURE BANKING</div></div>
+      <div class="balanceCard">
+        <div class="lab">Bank balance</div>
+        <div class="amt">$<span id="phoneBank">0</span></div>
+        <div class="acct" id="phoneAcct">•••• 0417 · J. DUVAL</div>
+      </div>
+      <div class="pillRow"><span class="pill">Instant transfers</span><span class="pill hot">No fees</span><span class="pill">FDIC-ish</span></div>
+      <div class="appList">
+        <div class="appRow" style="border-bottom:0;padding-bottom:4px"><span class="k">Wallet</span><span class="k">Amount</span></div>
+        <div class="appRow"><span>Physical cash</span><span class="val" id="phoneCash">$0</span></div>
+        <div class="appRow"><span>Fenced loot</span><span class="val" id="phoneLoot">$0</span></div>
+        <div class="appRow"><span>Duffel bags</span><span class="val" id="phoneBags">0</span></div>
+      </div>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn primary" id="btnDeposit">DEPOSIT CASH</button>
+        <button class="btn" id="btnWithdraw">WITHDRAW $500</button>
+      </div>
+      <button class="btn" id="btnSummon" style="width:100%;margin-top:8px">SUMMON GROTTO GT · FREE</button>
+      <div class="sectionTitle" style="margin-top:18px">CRIMINAL PROFILE</div>
+      <div class="crimeBars">
+        <div class="crimeBar"><label>Violence</label><div class="t"><div class="f" id="profViolence" style="width:0%"></div></div></div>
+        <div class="crimeBar"><label>Notoriety</label><div class="t"><div class="f" id="profNotoriety" style="width:0%"></div></div></div>
+        <div class="crimeBar"><label>Witnesses</label><div class="t"><div class="f" id="profWitness" style="width:0%"></div></div></div>
+      </div>
+      <div class="appList" style="margin-top:8px">
+        <div class="appRow"><span>Wanted heat</span><span class="val" id="phoneHeat">CLEAR</span></div>
+        <div class="appRow"><span>Police severity</span><span class="val" id="phoneSeverity">LOW</span></div>
+        <div class="appRow"><span>Fence contact</span><span class="val" style="color:#7dff9c">PAWN &amp; PWN</span></div>
+      </div>
+      <div class="note">Loot must be fenced at Pawn &amp; Pwn in Port Gellhorn before it becomes bankable cash. Cash is lost on death or arrest. Keep your trunk stocked, partner.</div>
+    </div>
+    <div class="phoneTabbar">
+      <button class="active" data-tab="bank"><i>▦</i>Bank</button>
+      <button data-tab="profile"><i>◉</i>Profile</button>
+      <button data-tab="map"><i>⌖</i>Map</button>
+      <button data-tab="close"><i>✕</i>Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="trunk" class="modal hidden">
+  <div class="sheet" style="position:relative">
+    <button class="closeX" data-close="trunk">×</button>
+    <h2>Trunk</h2>
+    <div class="sub" id="trunkSub">PERSONAL VEHICLE · GROTTO GT</div>
+    <div class="invGrid">
+      <div class="invCell"><div class="n" id="trunkBags">0</div><div class="l">Duffel bags</div></div>
+      <div class="invCell"><div class="n" id="trunkBodies">0</div><div class="l">Concealed</div></div>
+      <div class="invCell"><div class="n" id="trunkCapacity">0/4</div><div class="l">Capacity</div></div>
+    </div>
+    <div class="row"><span>Duffel loot (carried)</span><span class="v" id="carriedBags">0 bags</span></div>
+    <div class="row"><span>Weapon stash</span><span class="v cyan" id="trunkWeapons">Pistol, SMG</span></div>
+    <div class="row"><span>Body bags</span><span class="v" id="bodyCount">0</span></div>
+    <div class="actions">
+      <button class="btn primary" id="btnStoreBag">STORE DUFFEL</button>
+      <button class="btn" id="btnTakeBag">TAKE DUFFEL</button>
+      <button class="btn" id="btnStoreBody">CONCEAL BODY</button>
+      <button class="btn ghost" data-close="trunk">CLOSE</button>
+    </div>
+    <p style="font-size:9px;letter-spacing:.1em;color:#7f7893;line-height:1.6;margin-top:12px">Bodies in the trunk reduce witness reports. Duffels must be fenced before the cash is clean.</p>
+  </div>
+</div>
+
+<div id="lockpick" class="lockWrap hidden">
+  <div class="lockPanel">
+    <h3>Hotwire</h3>
+    <p id="lockCar">LOCKED VEHICLE · 3 PINS</p>
+    <div class="lockTrack" id="lockTrack"><div class="lockZone" id="lockZone"></div><div class="lockNeedle" id="lockNeedle"></div></div>
+    <div class="lockPins"><i class="pin" id="pin1"></i><i class="pin" id="pin2"></i><i class="pin" id="pin3"></i></div>
+    <div class="lockMsg" id="lockMsg">CLICK / SPACE IN THE GREEN</div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn primary" id="btnLockPick">PICK</button>
+      <button class="btn ghost" id="btnLockCancel">WALK AWAY</button>
+    </div>
+  </div>
+</div>
+
+<div id="qte" class="qteWrap hidden">
+  <div class="qteBox">
+    <h3 id="qteTitle">Hijack</h3>
+    <p>Hit the sequence or lose teeth</p>
+    <div class="qteKeys" id="qteKeys"></div>
+    <div class="qteTimer"><div class="f" id="qteFill"></div></div>
+  </div>
+</div>
+
+<div id="pause" class="hidden">
+  <div class="pauseSheet">
+    <h2>Paused</h2>
+    <div class="sub">Leonida Dreaming · field manual</div>
+    <div class="sectionTitle">On foot</div>
+    <div class="ctrlGrid">
+      <div>Move <span>W A S D</span></div>
+      <div>Look <span>MOUSE</span></div>
+      <div>Sprint / Jump <span>SHIFT / SPACE</span></div>
+      <div>Fire <span>LEFT CLICK</span></div>
+      <div>Aim <span>RIGHT CLICK</span></div>
+      <div>Reload <span>R</span></div>
+      <div>Focus (bullet time) <span>Q</span></div>
+      <div>Weapon slots <span>1 / 2 / 3</span></div>
+    </div>
+    <div class="sectionTitle">Vehicles &amp; world</div>
+    <div class="ctrlGrid">
+      <div>Enter / exit <span>F</span></div>
+      <div>Drive / brake <span>W / S</span></div>
+      <div>Steer <span>A / D</span></div>
+      <div>Handbrake <span>SPACE</span></div>
+      <div>Switch seat / partner <span>TAB or X</span></div>
+      <div>Trunk (personal car) <span>T</span></div>
+      <div>Phone / BuckMe <span>M</span></div>
+      <div>Interact / hijack <span>E</span></div>
+    </div>
+    <div class="sectionTitle">Settings</div>
+    <div class="sliderRow">Master volume <input type="range" id="setVol" min="0" max="100" value="55"></div>
+    <div class="sliderRow">Mouse sensitivity <input type="range" id="setSens" min="20" max="200" value="100"></div>
+    <div class="sliderRow">Touch look sensitivity <input type="range" id="setTouchSens" min="20" max="220" value="110"></div>
+    <div class="pauseActions">
+      <button class="btn primary" id="btnResume">RESUME</button>
+      <button class="btn" id="btnHelpPhone">OPEN PHONE</button>
+      <button class="btn ghost" id="btnQuit">QUIT TO TITLE</button>
+    </div>
+    <p style="font-size:9px;letter-spacing:.1em;color:#6f6880;line-height:1.6;margin-top:14px">White wanted stars mean an officer has eyes on you. Red stars mean dispatch has confirmed the pursuit. Break line of sight, lose the tail, then lay low.</p>
+  </div>
+</div>
+
+</body>
+</html>
